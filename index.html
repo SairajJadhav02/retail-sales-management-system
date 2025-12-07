@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Sales Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        .checkbox-custom:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        .hover-row:hover {
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen p-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Retail Sales Management</h1>
+                <p class="text-gray-600">Search, filter, and analyze sales transactions</p>
+            </div>
+
+            <!-- Search and Controls -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Search Bar -->
+                    <div class="flex-1 relative">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Search by customer name or phone..."
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                    </div>
+
+                    <!-- Sort Dropdown -->
+                    <select
+                        id="sortSelect"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="date-desc">Date (Newest First)</option>
+                        <option value="date-asc">Date (Oldest First)</option>
+                        <option value="quantity-desc">Quantity (High to Low)</option>
+                        <option value="quantity-asc">Quantity (Low to High)</option>
+                        <option value="name-asc">Customer Name (A-Z)</option>
+                        <option value="name-desc">Customer Name (Z-A)</option>
+                    </select>
+
+                    <!-- Filter Toggle -->
+                    <button
+                        id="filterToggle"
+                        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
+                        Filters
+                    </button>
+                </div>
+
+                <!-- Results Count -->
+                <div id="resultsCount" class="mt-4 text-sm text-gray-600"></div>
+            </div>
+
+            <!-- Filter Panel -->
+            <div id="filterPanel" class="bg-white rounded-lg shadow-sm p-6 mb-6 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Filters</h2>
+                    <button id="clearFilters" class="text-sm text-blue-600 hover:text-blue-700">Clear All</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Region Filter -->
+                    <div>
+                        <h3 class="font-medium mb-2">Region</h3>
+                        <div id="regionFilters" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Gender Filter -->
+                    <div>
+                        <h3 class="font-medium mb-2">Gender</h3>
+                        <div id="genderFilters" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Age Range -->
+                    <div>
+                        <h3 class="font-medium mb-2">Age Range</h3>
+                        <div class="flex gap-2 items-center">
+                            <input type="number" id="ageMin" placeholder="Min" class="w-20 px-2 py-1 border border-gray-300 rounded text-sm">
+                            <span>to</span>
+                            <input type="number" id="ageMax" placeholder="Max" class="w-20 px-2 py-1 border border-gray-300 rounded text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div>
+                        <h3 class="font-medium mb-2">Category</h3>
+                        <div id="categoryFilters" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Tags Filter -->
+                    <div>
+                        <h3 class="font-medium mb-2">Tags</h3>
+                        <div id="tagFilters" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Payment Method Filter -->
+                    <div>
+                        <h3 class="font-medium mb-2">Payment Method</h3>
+                        <div id="paymentFilters" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="md:col-span-2">
+                        <h3 class="font-medium mb-2">Date Range</h3>
+                        <div class="flex gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600">From</label>
+                                <input type="date" id="dateStart" class="block w-full px-3 py-1 border border-gray-300 rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">To</label>
+                                <input type="date" id="dateEnd" class="block w-full px-3 py-1 border border-gray-300 rounded text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="noResults" class="hidden px-6 py-12 text-center text-gray-500">
+                    No results found. Try adjusting your search or filters.
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between">
+                <div id="pageInfo" class="text-sm text-gray-600"></div>
+                <div class="flex gap-2">
+                    <button id="prevBtn" class="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        Previous
+                    </button>
+                    <button id="nextBtn" class="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Next
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data Generator
+        function generateMockData() {
+            const regions = ['North', 'South', 'East', 'West', 'Central'];
+            const genders = ['Male', 'Female', 'Other'];
+            const categories = ['Electronics', 'Clothing', 'Food', 'Books', 'Home'];
+            const tags = ['Premium', 'Budget', 'Seasonal', 'Clearance', 'New'];
+            const paymentMethods = ['Cash', 'Credit Card', 'Debit Card', 'UPI', 'Net Banking'];
+            const orderStatuses = ['Completed', 'Pending', 'Cancelled', 'Processing'];
+            const names = ['John Doe', 'Jane Smith', 'Robert Johnson', 'Emily Davis', 'Michael Brown', 
+                           'Sarah Wilson', 'David Lee', 'Lisa Anderson', 'James Taylor', 'Maria Garcia'];
+            
+            const data = [];
+            for (let i = 1; i <= 150; i++) {
+                const quantity = Math.floor(Math.random() * 10) + 1;
+                const pricePerUnit = Math.floor(Math.random() * 500) + 50;
+                const discount = Math.floor(Math.random() * 30);
+                const totalAmount = quantity * pricePerUnit;
+                const finalAmount = totalAmount - (totalAmount * discount / 100);
+                
+                data.push({
+                    customerId: `C${String(i).padStart(4, '0')}`,
+                    customerName: names[Math.floor(Math.random() * names.length)],
+                    phoneNumber: `+91-${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+                    gender: genders[Math.floor(Math.random() * genders.length)],
+                    age: Math.floor(Math.random() * 50) + 18,
+                    customerRegion: regions[Math.floor(Math.random() * regions.length)],
+                    productName: `Product ${i}`,
+                    productCategory: categories[Math.floor(Math.random() * categories.length)],
+                    tags: tags[Math.floor(Math.random() * tags.length)],
+                    quantity,
+                    pricePerUnit,
+                    discountPercentage: discount,
+                    finalAmount,
+                    date: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
+                    paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+                    orderStatus: orderStatuses[Math.floor(Math.random() * orderStatuses.length)]
+                });
+            }
+            return data;
+        }
+
+        // State
+        let allData = generateMockData();
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let filters = {
+            regions: [],
+            genders: [],
+            categories: [],
+            tags: [],
+            paymentMethods: [],
+            ageMin: '',
+            ageMax: '',
+            dateStart: '',
+            dateEnd: ''
+        };
+        let searchTerm = '';
+        let sortBy = 'date-desc';
+
+        // Initialize
+        function init() {
+            setupFilterOptions();
+            setupEventListeners();
+            renderData();
+        }
+
+        // Setup Filter Options
+        function setupFilterOptions() {
+            const regions = [...new Set(allData.map(d => d.customerRegion))];
+            const genders = [...new Set(allData.map(d => d.gender))];
+            const categories = [...new Set(allData.map(d => d.productCategory))];
+            const tags = [...new Set(allData.map(d => d.tags))];
+            const paymentMethods = [...new Set(allData.map(d => d.paymentMethod))];
+
+            createCheckboxes('regionFilters', regions, 'regions');
+            createCheckboxes('genderFilters', genders, 'genders');
+            createCheckboxes('categoryFilters', categories, 'categories');
+            createCheckboxes('tagFilters', tags, 'tags');
+            createCheckboxes('paymentFilters', paymentMethods, 'paymentMethods');
+        }
+
+        function createCheckboxes(containerId, options, filterKey) {
+            const container = document.getElementById(containerId);
+            options.forEach(option => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center cursor-pointer';
+                label.innerHTML = `
+                    <input type="checkbox" value="${option}" class="mr-2 checkbox-custom" data-filter="${filterKey}">
+                    <span class="text-sm">${option}</span>
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                searchTerm = e.target.value;
+                currentPage = 1;
+                renderData();
+            });
+
+            document.getElementById('sortSelect').addEventListener('change', (e) => {
+                sortBy = e.target.value;
+                currentPage = 1;
+                renderData();
+            });
+
+            document.getElementById('filterToggle').addEventListener('click', () => {
+                const panel = document.getElementById('filterPanel');
+                panel.classList.toggle('hidden');
+            });
+
+            document.getElementById('clearFilters').addEventListener('click', () => {
+                filters = {
+                    regions: [],
+                    genders: [],
+                    categories: [],
+                    tags: [],
+                    paymentMethods: [],
+                    ageMin: '',
+                    ageMax: '',
+                    dateStart: '',
+                    dateEnd: ''
+                };
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                document.getElementById('ageMin').value = '';
+                document.getElementById('ageMax').value = '';
+                document.getElementById('dateStart').value = '';
+                document.getElementById('dateEnd').value = '';
+                currentPage = 1;
+                renderData();
+            });
+
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const filterKey = e.target.dataset.filter;
+                    const value = e.target.value;
+                    if (e.target.checked) {
+                        filters[filterKey].push(value);
+                    } else {
+                        filters[filterKey] = filters[filterKey].filter(v => v !== value);
+                    }
+                    currentPage = 1;
+                    renderData();
+                });
+            });
+
+            ['ageMin', 'ageMax', 'dateStart', 'dateEnd'].forEach(id => {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    filters[id] = e.target.value;
+                    currentPage = 1;
+                    renderData();
+                });
+            });
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderData();
+                }
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                const totalPages = Math.ceil(getFilteredData().length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderData();
+                }
+            });
+        }
+
+        // Filter and Sort Data
+        function getFilteredData() {
+            let result = allData;
+
+            // Search
+            if (searchTerm) {
+                const search = searchTerm.toLowerCase();
+                result = result.filter(item => 
+                    item.customerName.toLowerCase().includes(search) ||
+                    item.phoneNumber.toLowerCase().includes(search)
+                );
+            }
+
+            // Filters
+            if (filters.regions.length > 0) {
+                result = result.filter(item => filters.regions.includes(item.customerRegion));
+            }
+            if (filters.genders.length > 0) {
+                result = result.filter(item => filters.genders.includes(item.gender));
+            }
+            if (filters.categories.length > 0) {
+                result = result.filter(item => filters.categories.includes(item.productCategory));
+            }
+            if (filters.tags.length > 0) {
+                result = result.filter(item => filters.tags.includes(item.tags));
+            }
+            if (filters.paymentMethods.length > 0) {
+                result = result.filter(item => filters.paymentMethods.includes(item.paymentMethod));
+            }
+            if (filters.ageMin || filters.ageMax) {
+                result = result.filter(item => {
+                    const age = item.age;
+                    const min = filters.ageMin ? parseInt(filters.ageMin) : 0;
+                    const max = filters.ageMax ? parseInt(filters.ageMax) : 150;
+                    return age >= min && age <= max;
+                });
+            }
+            if (filters.dateStart || filters.dateEnd) {
+                result = result.filter(item => {
+                    const itemDate = new Date(item.date);
+                    const startDate = filters.dateStart ? new Date(filters.dateStart) : new Date(0);
+                    const endDate = filters.dateEnd ? new Date(filters.dateEnd) : new Date();
+                    return itemDate >= startDate && itemDate <= endDate;
+                });
+            }
+
+            // Sort
+            switch (sortBy) {
+                case 'date-desc':
+                    result.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    break;
+                case 'date-asc':
+                    result.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    break;
+                case 'quantity-desc':
+                    result.sort((a, b) => b.quantity - a.quantity);
+                    break;
+                case 'quantity-asc':
+                    result.sort((a, b) => a.quantity - b.quantity);
+                    break;
+                case 'name-asc':
+                    result.sort((a, b) => a.customerName.localeCompare(b.customerName));
+                    break;
+                case 'name-desc':
+                    result.sort((a, b) => b.customerName.localeCompare(a.customerName));
+                    break;
+            }
+
+            return result;
+        }
+
+        // Render Data
+        function renderData() {
+            const filteredData = getFilteredData();
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+            // Render Table
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            if (paginatedData.length === 0) {
+                document.getElementById('noResults').classList.remove('hidden');
+                tbody.parentElement.classList.add('hidden');
+            } else {
+                document.getElementById('noResults').classList.add('hidden');
+                tbody.parentElement.classList.remove('hidden');
+
+                paginatedData.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover-row';
+                    
+                    const statusClass = 
+                        item.orderStatus === 'Completed' ? 'bg-green-100 text-green-800' :
+                        item.orderStatus === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                        item.orderStatus === 'Processing' ? 'bg-blue-100 text-blue-800' :
+                        'bg-red-100 text-red-800';
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900">${item.customerName}</div>
+                            <div class="text-sm text-gray-500">${item.phoneNumber}</div>
+                            <div class="text-xs text-gray-400">${item.customerRegion} • ${item.gender}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">${item.productName}</div>
+                            <div class="text-sm text-gray-500">${item.productCategory}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">${item.quantity}</td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900">₹${item.finalAmount.toFixed(2)}</div>
+                            ${item.discountPercentage > 0 ? `<div class="text-xs text-green-600">${item.discountPercentage}% off</div>` : ''}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">${item.date}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs rounded-full ${statusClass}">${item.orderStatus}</span>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Update Results Count
+            document.getElementById('resultsCount').textContent = 
+                `Showing ${paginatedData.length} of ${filteredData.length} results${filteredData.length !== allData.length ? ` (filtered from ${allData.length} total)` : ''}`;
+
+            // Update Pagination
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages || 1}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
